@@ -41,8 +41,8 @@ Eine Web-Anwendung zur Konvertierung verschiedener Dateiformate in Markdown – 
 
 ```bash
 # 1. Repository klonen
-git clone https://github.com/YOUR_USERNAME/MarkItDown.git
-cd MarkItDown
+git clone https://github.com/Wakar111/markdown-konverter.git
+cd markdown-konverter
 
 # 2. Virtuelle Umgebung erstellen und aktivieren
 python3 -m venv venv
