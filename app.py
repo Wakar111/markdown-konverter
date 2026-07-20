@@ -1,7 +1,8 @@
 """
 MarkItDown Konverter - Hauptanwendung
 
-Eine Streamlit-Anwendung zur Konvertierung verschiedener Dateiformate in Markdown.
+Eine Streamlit-Anwendung zur Konvertierung verschiedener Dateiformate in Markdown
+und zur KI-gestützten Dokumentensuche.
 """
 
 import streamlit as st
@@ -9,6 +10,7 @@ import streamlit as st
 from src.config import APP_CONFIG, UI_TEXT
 from src.converter import MarkdownConverter
 from src.components import render_sidebar, render_file_upload, render_result
+from src.components.document_search import render_document_search_page
 
 
 def configure_page() -> None:
@@ -32,14 +34,8 @@ def render_footer() -> None:
     st.markdown(UI_TEXT.FOOTER_HTML, unsafe_allow_html=True)
 
 
-def main() -> None:
-    """Hauptfunktion der Anwendung."""
-    # Seite konfigurieren
-    configure_page()
-    
-    # Sidebar rendern und Konfiguration erhalten
-    provider_config = render_sidebar()
-    
+def render_converter_page(provider_config) -> None:
+    """Rendert die Konverter-Seite."""
     # Header rendern
     render_header()
     
@@ -61,6 +57,29 @@ def main() -> None:
     
     # Footer rendern
     render_footer()
+
+
+def main() -> None:
+    """Hauptfunktion der Anwendung."""
+    # Seite konfigurieren
+    configure_page()
+    
+    # Navigation
+    page = st.sidebar.radio(
+        "📌 Navigation",
+        options=["📄 Konverter", "🔍 Dokumentensuche"],
+        index=0
+    )
+    
+    st.sidebar.divider()
+    
+    if page == "📄 Konverter":
+        # Sidebar für Konverter rendern und Konfiguration erhalten
+        provider_config = render_sidebar()
+        render_converter_page(provider_config)
+    else:
+        # Dokumentensuche-Seite
+        render_document_search_page()
 
 
 if __name__ == "__main__":

@@ -8,11 +8,19 @@ Eine Web-Anwendung zur Konvertierung verschiedener Dateiformate in Markdown – 
 
 ## ✨ Features
 
+### 📄 Konverter
 - **Drag & Drop Upload** – Dateien einfach per Drag & Drop oder Dateisuche hochladen
 - **Viele Dateiformate** – PDF, Word, PowerPoint, Excel, Bilder, HTML, CSV, JSON und mehr
 - **Live-Vorschau** – Sofortige Markdown-Vorschau nach der Konvertierung
 - **Ein-Klick-Kopieren** – Markdown-Code direkt in die Zwischenablage kopieren
 - **Optional: KI-gestützte OCR** – Bilder und Diagramme in PDFs erkennen mit Vision-Modellen
+
+### 🔍 Dokumentensuche (NEU!)
+- **Multi-Dokument-Upload** – Mehrere PDFs/Word-Dateien gleichzeitig hochladen
+- **KI-gestützte Suche** – Stellen Sie Fragen zu Ihren Dokumenten im Chat-Interface
+- **Quellenangaben** – Jede Antwort zeigt, aus welchem Dokument die Information stammt
+- **Token-effizient** – Durch RAG werden nur relevante Textabschnitte an die KI gesendet
+- **Ideal für Buchhaltung** – Finden Sie schnell Steuersätze, Adressen, Rechnungsdetails
 
 ## 🛠️ Technologien
 
@@ -21,7 +29,9 @@ Eine Web-Anwendung zur Konvertierung verschiedener Dateiformate in Markdown – 
 | **Python 3.10+** | Programmiersprache |
 | **Streamlit** | Web-UI Framework |
 | **Microsoft MarkItDown** | Datei-zu-Markdown Konvertierung |
-| **OpenAI API** (optional) | Vision-basierte OCR für Bilder/Diagramme |
+| **ChromaDB** | Vektordatenbank für Dokumentensuche |
+| **LangChain** | RAG-Framework & Text-Chunking |
+| **OpenAI/Gemini/Ollama** | KI-Provider für OCR & Chat |
 
 ## 📁 Unterstützte Dateiformate
 
@@ -109,11 +119,18 @@ MarkItDown/
     ├── config.py               # Konfiguration & UI-Texte
     ├── converter.py            # Konvertierungslogik
     ├── providers.py            # KI-Anbieter-Definitionen
-    └── components/
+    ├── components/
+    │   ├── __init__.py
+    │   ├── sidebar.py          # Sidebar-Komponente
+    │   ├── file_upload.py      # Upload-Komponente
+    │   ├── result_display.py   # Ergebnis-Anzeige
+    │   └── document_search.py  # Dokumentensuche-UI (NEU)
+    └── rag/                     # RAG-Module (NEU)
         ├── __init__.py
-        ├── sidebar.py          # Sidebar-Komponente
-        ├── file_upload.py      # Upload-Komponente
-        └── result_display.py   # Ergebnis-Anzeige
+        ├── document_store.py   # Dokumentenverwaltung & Chunking
+        ├── embeddings.py       # Embedding-Service
+        ├── retriever.py        # Vektor-Suche mit ChromaDB
+        └── chat.py             # RAG-Chat-Logik
 ```
 
 ## 🔧 Entwicklung
@@ -134,10 +151,42 @@ pytest tests/
 
 ## 📝 Verwendung
 
+### Konverter
 1. **Anwendung starten** mit `streamlit run app.py`
-2. **Datei hochladen** per Drag & Drop oder Klick
-3. **Ergebnis ansehen** in der Vorschau oder als Markdown-Code
-4. **Kopieren** mit dem Kopier-Button im Markdown-Code Tab
+2. **"📄 Konverter"** in der Navigation wählen
+3. **Datei hochladen** per Drag & Drop oder Klick
+4. **Ergebnis ansehen** in der Vorschau oder als Markdown-Code
+5. **Kopieren** mit dem Kopier-Button im Markdown-Code Tab
+
+### Dokumentensuche
+1. **"🔍 Dokumentensuche"** in der Navigation wählen
+2. **KI konfigurieren** – Provider und API-Key in der Sidebar eingeben
+3. **"Services initialisieren"** klicken
+4. **Dokumente hochladen** – Mehrere PDFs/Word-Dateien gleichzeitig möglich
+5. **"Dokumente indexieren"** klicken
+6. **Fragen stellen** im Chat-Interface, z.B.:
+   - *"Welcher Steuersatz gilt für Kunde Müller GmbH?"*
+   - *"Was ist die Anschrift von Firma Schmidt?"*
+   - *"Zeige mir alle Rechnungen an Kunde XY"*
+
+## 🚧 Roadmap / Geplante Erweiterungen
+
+### Kurzfristig
+- [ ] **Persistenz** – Indexierte Dokumente speichern, sodass sie beim nächsten Start nicht erneut verarbeitet werden müssen
+- [ ] **Fortschrittsanzeige** – Detaillierter Fortschritt bei der Indexierung vieler Dokumente
+- [ ] **Dokumenten-Preview** – Vorschau der hochgeladenen Dokumente vor der Indexierung
+
+### Mittelfristig
+- [ ] **Ordner-Import** – Ganzen Ordner mit Dokumenten auf einmal importieren
+- [ ] **Export-Funktion** – Chat-Verlauf als PDF/Markdown exportieren
+- [ ] **Mehrsprachige Suche** – Dokumente in verschiedenen Sprachen durchsuchen
+- [ ] **Dokumenten-Kategorien** – Dokumente nach Typ/Kunde/Jahr gruppieren
+
+### Langfristig
+- [ ] **Cloud-Speicher** – Integration mit Google Drive, Dropbox, OneDrive
+- [ ] **Team-Funktionen** – Mehrere Benutzer, geteilte Dokumentenbasis
+- [ ] **API-Endpunkt** – REST-API für Integration in andere Systeme
+- [ ] **Automatische Aktualisierung** – Neue Dokumente in überwachten Ordnern automatisch indexieren
 
 ## 🤝 Beitragen
 

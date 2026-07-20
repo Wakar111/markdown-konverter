@@ -1,3 +1,12 @@
 streamlit>=1.30
 markitdown[all]
 openai
+
+# RAG Dependencies
+chromadb>=0.4.0
+langchain>=0.1.0
+langchain-openai>=0.1.0
+langchain-google-genai>=1.0.0
+langchain-text-splitters>=0.0.1
+langchain-community>=0.0.1
+sentence-transformers>=2.2.0
