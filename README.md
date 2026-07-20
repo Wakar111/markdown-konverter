@@ -151,3 +151,18 @@ MIT License – siehe [LICENSE](LICENSE) für Details.
 
 - [Microsoft MarkItDown](https://github.com/microsoft/markitdown) – Die Konvertierungs-Engine
 - [Streamlit](https://streamlit.io/) – Das Web-UI Framework
+
+# Repository klonen
+git clone https://github.com/Wakar111/markdown-konverter.git
+cd markdown-konverter
+
+# Virtuelle Umgebung erstellen
+python3 -m venv venv
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
+
+# Abhängigkeiten installieren
+pip install -r requirements.txt
+
+# Starten
+streamlit run app.py
