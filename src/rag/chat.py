@@ -18,6 +18,7 @@ class ChatProvider(Enum):
     
     OPENAI = "OpenAI"
     GEMINI = "Google Gemini"
+    NVIDIA = "NVIDIA NIM"
     OLLAMA = "Ollama (lokal)"
 
 
@@ -99,7 +100,7 @@ class RAGChat:
         """Chat-Verlauf."""
         return self._history.copy()
     
-    def ask(self, question: str, top_k: int = 5) -> ChatResponse:
+    def ask(self, question: str, top_k: int = 10) -> ChatResponse:
         """
         Stellt eine Frage an die Dokumentenbasis.
         
@@ -142,7 +143,7 @@ class RAGChat:
     
     def _create_client(self) -> OpenAI:
         """Erstellt den OpenAI-kompatiblen Client."""
-        client_kwargs = {}
+        client_kwargs = {"timeout": 60.0}
         
         if self._config.api_key:
             client_kwargs["api_key"] = self._config.api_key
@@ -153,6 +154,8 @@ class RAGChat:
         # Provider-spezifische Anpassungen
         if self._config.provider == ChatProvider.GEMINI:
             client_kwargs["base_url"] = "https://generativelanguage.googleapis.com/v1beta/openai/"
+        elif self._config.provider == ChatProvider.NVIDIA:
+            client_kwargs["base_url"] = self._config.base_url or "https://integrate.api.nvidia.com/v1"
         elif self._config.provider == ChatProvider.OLLAMA:
             client_kwargs["base_url"] = self._config.base_url or "http://localhost:11434/v1"
             client_kwargs["api_key"] = "ollama"
@@ -160,14 +163,29 @@ class RAGChat:
         return OpenAI(**client_kwargs)
     
     def _build_context(self, results: list[RetrievalResult]) -> str:
-        """Baut den Kontext aus den Suchergebnissen auf."""
+        """Baut den Kontext aus den Suchergebnissen auf.
+        
+        Gruppiert Abschnitte nach Quelldatei, damit das LLM nicht mehrere
+        Abschnitte desselben Dokuments als separate Dokumente zählt.
+        """
         if not results:
             return "Keine relevanten Dokumente gefunden."
         
+        # Nach Quelldatei gruppieren, Reihenfolge des ersten Auftretens beibehalten
+        sources_order: list[str] = []
+        sections_by_source: dict[str, list[str]] = {}
+        for result in results:
+            if result.source not in sections_by_source:
+                sections_by_source[result.source] = []
+                sources_order.append(result.source)
+            sections_by_source[result.source].append(result.content)
+        
         context_parts = []
-        for i, result in enumerate(results, 1):
+        for i, source in enumerate(sources_order, 1):
+            sections = sections_by_source[source]
+            joined_sections = "\n\n".join(sections)
             context_parts.append(
-                f"[Dokument {i}: {result.source}]\n{result.content}\n"
+                f"[Dokument {i}: {source}]\n{joined_sections}\n"
             )
         
         return "\n---\n".join(context_parts)
@@ -217,6 +235,7 @@ def create_rag_chat(
     default_models = {
         ChatProvider.OPENAI: "gpt-4o-mini",
         ChatProvider.GEMINI: "gemini-2.0-flash",
+        ChatProvider.NVIDIA: "meta/llama-3.1-8b-instruct",
         ChatProvider.OLLAMA: "llama3.2",
     }
     

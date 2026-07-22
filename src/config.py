@@ -53,6 +53,12 @@ class UIText:
     TAB_MARKDOWN: str = "📝 Markdown-Code"
     TEXTAREA_LABEL: str = "Markdown-Inhalt"
     TEXTAREA_HELP: str = "Nutzen Sie den Kopieren-Button oben rechts für den gesamten Inhalt"
+    LARGE_CONTENT_WARNING: str = (
+        "⚠️ Große Ausgabe ({length:,} Zeichen) – die Vorschau zeigt nur die ersten "
+        "{limit:,} Zeichen an, um lange Ladezeiten im Browser zu vermeiden. "
+        "Den vollständigen Inhalt finden Sie im Tab **Markdown-Code** oder über den Download-Button."
+    )
+    DOWNLOAD_BUTTON_LABEL: str = "⬇️ Markdown als Datei herunterladen"
     
     # Supported Formats
     FORMATS_EXPANDER: str = "📋 Unterstützte Dateiformate"

@@ -15,6 +15,7 @@ class ProviderType(Enum):
     NONE = "Keiner (Standard)"
     OPENAI = "OpenAI"
     GEMINI = "Google Gemini"
+    GLM = "NVIDIA NIM (GLM / Llama Vision)"
     OLLAMA = "Ollama (lokal)"
     CUSTOM = "Andere (OpenAI-kompatibel)"
 
@@ -70,6 +71,22 @@ PROVIDER_INFO: dict[ProviderType, ProviderInfo] = {
         api_key_placeholder="AIza...",
         api_key_help="Kostenlos erhältlich unter: https://aistudio.google.com/app/apikey",
         info_message="💡 Gemini bietet einen großzügigen kostenlosen Tarif!",
+    ),
+    ProviderType.GLM: ProviderInfo(
+        provider_type=ProviderType.GLM,
+        models=(
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+            "meta/llama-3.2-11b-vision-instruct",
+            "meta/llama-3.2-90b-vision-instruct",
+            "z-ai/glm-5.2",
+        ),
+        default_base_url="https://integrate.api.nvidia.com/v1",
+        api_key_placeholder="nvapi-...",
+        api_key_help="NVIDIA NIM API-Key von https://build.nvidia.com",
+        info_message=(
+            "⚠️ z-ai/glm-5.2 ist ein reines Text-Modell (keine Bilder!). "
+            "Für Bild-OCR ein Vision-Modell wie nvidia/nemotron-3-nano-omni-30b-a3b-reasoning nutzen."
+        ),
     ),
     ProviderType.OLLAMA: ProviderInfo(
         provider_type=ProviderType.OLLAMA,

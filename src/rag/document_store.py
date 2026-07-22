@@ -145,6 +145,48 @@ class DocumentStore:
         
         return document
     
+    def add_document_from_content(
+        self,
+        file_bytes: bytes,
+        filename: str,
+        markdown_content: str
+    ) -> Document:
+        """
+        Fügt ein Dokument mit bereits vorhandenem Markdown-Inhalt hinzu.
+        
+        Nützlich, wenn die Datei bereits an anderer Stelle (z.B. im
+        Konverter) konvertiert wurde und keine erneute (ggf. teure OCR-)
+        Konvertierung nötig ist.
+        
+        Args:
+            file_bytes: Dateiinhalt als Bytes (für die Dokument-ID)
+            filename: Originaler Dateiname
+            markdown_content: Bereits konvertierter Markdown-Inhalt
+            
+        Returns:
+            Das verarbeitete Document-Objekt
+        """
+        doc_id = self._generate_document_id(file_bytes, filename)
+        
+        if doc_id in self._documents:
+            return self._documents[doc_id]
+        
+        document = Document(
+            id=doc_id,
+            filename=filename,
+            content=markdown_content,
+            upload_date=datetime.now(),
+            metadata={"original_size": len(file_bytes)}
+        )
+        
+        chunks = self._create_chunks(document)
+        document.metadata["chunk_count"] = len(chunks)
+        
+        self._documents[doc_id] = document
+        self._chunks.extend(chunks)
+        
+        return document
+    
     def remove_document(self, document_id: str) -> bool:
         """
         Entfernt ein Dokument und dessen Chunks.

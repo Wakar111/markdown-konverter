@@ -12,6 +12,7 @@ from typing import Optional
 from dataclasses import dataclass
 
 from langchain_core.embeddings import Embeddings
+from openai import OpenAI
 
 
 class EmbeddingProvider(Enum):
@@ -20,6 +21,7 @@ class EmbeddingProvider(Enum):
     LOCAL = "Lokal (kostenlos)"
     OPENAI = "OpenAI"
     GEMINI = "Google Gemini"
+    NVIDIA = "NVIDIA NIM"
 
 
 @dataclass
@@ -36,7 +38,38 @@ DEFAULT_MODELS = {
     EmbeddingProvider.LOCAL: "all-MiniLM-L6-v2",
     EmbeddingProvider.OPENAI: "text-embedding-3-small",
     EmbeddingProvider.GEMINI: "models/embedding-001",
+    EmbeddingProvider.NVIDIA: "nvidia/nv-embedqa-e5-v5",
 }
+
+NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
+
+
+class NvidiaEmbeddings(Embeddings):
+    """
+    Embeddings-Wrapper für NVIDIA NIM asymmetrische Modelle
+    (z.B. nv-embedqa-e5-v5), die einen 'input_type' Parameter
+    benötigen: 'passage' für Dokumente, 'query' für Suchanfragen.
+    """
+    
+    def __init__(self, api_key: str, model: str, base_url: str = NVIDIA_BASE_URL):
+        self._client = OpenAI(api_key=api_key, base_url=base_url)
+        self._model = model
+    
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        response = self._client.embeddings.create(
+            input=texts,
+            model=self._model,
+            extra_body={"input_type": "passage"}
+        )
+        return [item.embedding for item in response.data]
+    
+    def embed_query(self, text: str) -> list[float]:
+        response = self._client.embeddings.create(
+            input=[text],
+            model=self._model,
+            extra_body={"input_type": "query"}
+        )
+        return response.data[0].embedding
 
 
 class EmbeddingService:
@@ -109,6 +142,9 @@ class EmbeddingService:
         if provider == EmbeddingProvider.GEMINI:
             return self._create_gemini_embeddings(model_name)
         
+        if provider == EmbeddingProvider.NVIDIA:
+            return self._create_nvidia_embeddings(model_name)
+        
         # Fallback zu lokalen Embeddings
         return self._create_local_embeddings(DEFAULT_MODELS[EmbeddingProvider.LOCAL])
     
@@ -144,6 +180,17 @@ class EmbeddingService:
         return GoogleGenerativeAIEmbeddings(
             model=model_name,
             google_api_key=self._config.api_key
+        )
+    
+    def _create_nvidia_embeddings(self, model_name: str) -> Embeddings:
+        """Erstellt NVIDIA NIM Embeddings (asymmetrisches Modell mit input_type)."""
+        if not self._config.api_key:
+            raise ValueError("NVIDIA NIM API-Key erforderlich")
+        
+        return NvidiaEmbeddings(
+            api_key=self._config.api_key,
+            model=model_name,
+            base_url=NVIDIA_BASE_URL
         )
 
 
